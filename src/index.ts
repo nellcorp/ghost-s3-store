@@ -1,14 +1,14 @@
 import {
+  S3,
+  type ObjectCannedACL,
   type PutObjectCommandInput,
   type S3ClientConfig,
-  type ObjectCannedACL,
-  S3,
-} from '@aws-sdk/client-s3'
-import StorageBase, { type ReadOptions, type Image } from 'ghost-storage-base'
-import { join } from 'path'
-import { createReadStream } from 'fs'
-import type { Readable } from 'stream'
-import type { Handler } from 'express'
+} from '@aws-sdk/client-s3';
+import type { Handler } from 'express';
+import { createReadStream } from 'fs';
+import StorageBase, { type Image, type ReadOptions } from 'ghost-storage-base';
+import { join } from 'path';
+import type { Readable } from 'stream';
 
 const stripLeadingSlash = (s: string) =>
   s.indexOf('/') === 0 ? s.substring(1) : s
@@ -20,6 +20,7 @@ type Config = {
   assetHost?: string
   bucket?: string
   pathPrefix?: string
+  cdnPrefix?: string
   region?: string
   secretAccessKey?: string
   endpoint?: string
@@ -34,6 +35,7 @@ class S3Storage extends StorageBase {
   bucket?: string
   host: string
   pathPrefix: string
+  cdnPrefix: string
   endpoint: string
   forcePathStyle: boolean
   acl?: ObjectCannedACL
@@ -46,6 +48,7 @@ class S3Storage extends StorageBase {
       assetHost,
       bucket,
       pathPrefix,
+      cdnPrefix,
       region,
       secretAccessKey,
       endpoint,
@@ -71,13 +74,11 @@ class S3Storage extends StorageBase {
     let defaultHost: string
 
     if (this.forcePathStyle) {
-      defaultHost = `https://s3${
-        this.region === 'us-east-1' ? '' : `.${this.region}`
-      }.amazonaws.com/${this.bucket}`
+      defaultHost = `https://s3${this.region === 'us-east-1' ? '' : `.${this.region}`
+        }.amazonaws.com/${this.bucket}`
     } else {
-      defaultHost = `https://${this.bucket}.s3${
-        this.region === 'us-east-1' ? '' : `.${this.region}`
-      }.amazonaws.com`
+      defaultHost = `https://${this.bucket}.s3${this.region === 'us-east-1' ? '' : `.${this.region}`
+        }.amazonaws.com`
     }
 
     this.host =
@@ -87,6 +88,9 @@ class S3Storage extends StorageBase {
 
     this.pathPrefix = stripLeadingSlash(
       process.env.GHOST_STORAGE_ADAPTER_S3_PATH_PREFIX || pathPrefix || ''
+    )
+    this.cdnPrefix = stripLeadingSlash(
+      process.env.GHOST_STORAGE_ADAPTER_CDN_PATH_PREFIX || cdnPrefix || ''
     )
     this.endpoint =
       process.env.GHOST_STORAGE_ADAPTER_S3_ENDPOINT || endpoint || ''
@@ -150,10 +154,12 @@ class S3Storage extends StorageBase {
     return parsedUrl.pathname
   }
 
-  async save(image: Image, targetDir?: string) {
+  async save(image: Image, targetDir?: string, cdnDir?: string) {
     const directory = targetDir || this.getTargetDir(this.pathPrefix)
+    const cdnDirectory = cdnDir || this.getTargetDir(this.cdnPrefix)
 
     const fileName = await this.getUniqueFileName(image, directory)
+    const cdnFileName = await this.getUniqueFileName(image, cdnDirectory)
     const file = createReadStream(image.path)
 
     let config: PutObjectCommandInput = {
@@ -166,7 +172,7 @@ class S3Storage extends StorageBase {
     }
     await this.s3().putObject(config)
 
-    return `${this.host}/${stripLeadingSlash(fileName)}`
+    return `${this.host}/${stripLeadingSlash(cdnFileName)}`
   }
 
   serve(): Handler {
