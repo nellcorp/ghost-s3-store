@@ -56,6 +56,7 @@ Largely the same, but note `signatureVersion` and `serverSideEncryption` are rem
     "bucket": "YOUR_BUCKET_NAME",
     "assetHost": "YOUR_OPTIONAL_CDN_URL (See note 1 below)",
     "pathPrefix": "YOUR_OPTIONAL_BUCKET_SUBDIRECTORY",
+    "cdnPrefix": "YOUR_OPTIONAL_CDN_SUBDIRECTORY",
     "endpoint": "YOUR_OPTIONAL_ENDPOINT_URL (only needed for 3rd party S3 providers)",
     "forcePathStyle": true,
     "acl": "YOUR_OPTIONAL_ACL (See note 3 below)",
@@ -78,6 +79,7 @@ AWS_SECRET_ACCESS_KEY // optional
 GHOST_STORAGE_ADAPTER_S3_PATH_BUCKET
 GHOST_STORAGE_ADAPTER_S3_ASSET_HOST  // optional
 GHOST_STORAGE_ADAPTER_S3_PATH_PREFIX // optional
+GHOST_STORAGE_ADAPTER_CDN_PATH_PREFIX // optional
 GHOST_STORAGE_ADAPTER_S3_ENDPOINT // optional
 GHOST_STORAGE_ADAPTER_S3_FORCE_PATH_STYLE // optional
 GHOST_STORAGE_ADAPTER_S3_ACL // optional

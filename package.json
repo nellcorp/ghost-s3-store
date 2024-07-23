@@ -1,5 +1,5 @@
 {
-  "name": "ghost-s3-store",
+  "name": "@nellcorp/ghost-s3-store",
   "version": "3.0.2",
   "description": "S3 Storage adapter for Ghost.",
   "main": "index.js",
@@ -21,5 +21,19 @@
     "prettier": "^3.2.5",
     "tslib": "^2.6.2",
     "typescript": "^5.4.3"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nellcorp/ghost-s3-store.git"
+  },
+  "keywords": [
+    "ghost",
+    "storage",
+    "adapter",
+    "s3"
+  ],
+  "bugs": {
+    "url": "https://github.com/nellcorp/ghost-s3-store/issues"
+  },
+  "homepage": "https://github.com/nellcorp/ghost-s3-store#readme"
 }
